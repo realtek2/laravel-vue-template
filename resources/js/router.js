@@ -1,33 +1,48 @@
-import vueRouter from 'vue-router';
 import Vue from 'vue';
+import Auth from './Auth.js';
+import VueRouter from 'vue-router';
+Vue.use(VueRouter);
 
-Vue.use(vueRouter);
-
-import Index from "./views/Index";
-import Blog from "./views/Blog";
-import Post from "./views/Post";
-import CreatePost from "./views/CreatePost";
+import Login from './components/login.vue';
+import Register from './components/register.vue';
+import Dashboard from './components/dashboard.vue';
 
 const routes = [
     {
-        path: "/",
-        component: Index
+        path: '/login',
+        component: Login,
+        name: "Login"
     },
     {
-        path: "/blog",
-        component: Blog
+        path: '/register',
+        component: Register,
+        name: "Register"
     },
     {
-        path: "/post/:id",
-        component: Post
-    },
-    {
-        path: "/create",
-        component: CreatePost
+        path: '/dashboard',
+        component: Dashboard,
+        name: "Dashboard",
+        meta: {
+            requiresAuth: true
+        }
     }
 ];
 
-export default new vueRouter({
-    mode: "history",
-    routes
+const router = new VueRouter({
+    mode: 'history',
+    routes: routes
 });
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth) ) {
+        if (Auth.check()) {
+            next();
+        } else {
+            router.push('/login');
+        }
+    } else {
+        next();
+    }
+});
+
+export default router;
